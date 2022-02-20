@@ -1,0 +1,73 @@
+
+#include "EAstdlib.event"
+
+#define FreeSpace $B2A610
+ORG FreeSpace
+	
+	
+// =================================
+// ======= Prep-screen item ========
+// =================================
+
+#include "PrepScreenItem/PrepItemProc.lyn.event"
+PROTECT $9CCFC $9CD14  // StartPrepScreenItemUseScreen	
+PROTECT $8A19064 $8A191A0 	// gProc_PrepScreenItemUseScreen
+PROTECT $9C4E4 $9C820 // PrepScreenItemUseScreen_InitDisplay
+
+
+
+
+
+
+// =================================
+// ========= Map-main item =========
+// =================================
+
+// Modular judgement for item usability inside player phase
+#include "MapMainItem/Usability.lyn.event"
+PROTECT $28870 $28C0A // CanUnitUseItem
+PROTECT $2940C $294FC // CanUnitUseStatGainItem
+PROTECT $29504 $29518 // CanUnitUseFruitItem
+
+
+// Modular item effect
+#include "MapMainItem/MenuEffect.lyn.event"
+PROTECT $28E60 $29066 // DoItemUse
+
+
+// Modular item-effect action routine
+#include "MapMainItem/ActionEffect.lyn.event"
+PROTECT $2FC48 $2FFB0 // ActionStaffDoorChestUseItem
+
+	
+#define InjectItemUsability(item_id, judge_routine) "PUSH; ORG ItemUsabilityTable + item_id*4; POIN judge_routine|1; POP"
+#define InjectItemMenuEffect(item_id, effect_routine) "PUSH; ORG ItemMenuEffectTable + item_id*4; POIN effect_routine|1; POP"
+#define InjectItemActionEffect(item_id, action_routine) "PUSH; ORG ItemActionEffectTable + item_id*4; POIN judge_routine|1; POP"
+
+
+	
+// =================================
+// ============= Debug =============
+// =================================
+
+
+
+
+PUSH
+	// call prep-screen in prologue
+	ORG $9EECB4
+	PREP
+	
+	// Eirika level 10
+	ORG $8B3C2B
+	BYTE $50		
+	
+	// Eirika Class = Mage
+	ORG $8B3C29
+	BYTE Mage_F		
+	
+	// Eirika items
+	ORG $8B3C35		
+	BYTE Fire GuidingRing EnergyRing
+	
+POP	
