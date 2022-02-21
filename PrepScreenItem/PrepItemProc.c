@@ -76,13 +76,13 @@ PROC_LABEL(3),
 	PROC_GOTO(1),	// Back to main loop
 
 
-// Label 4:  juna fruit
+// Label 4: juna fruit
 PROC_LABEL(4),
 	PROC_START_CHILD_BLOCKING ((void*)gProc_StatScreenItemJunaFruitEffect),
 	PROC_GOTO(1),	// Back to main loop
 
 
-// Label 5:  promote
+// Label 5: promote
 PROC_LABEL(5),
 	PROC_CALL_ARG (NewFadeOut, 0x10),
 	PROC_WHILE (FadeOutExists),
@@ -100,12 +100,12 @@ PROC_LABEL(5),
 	PROC_GOTO(1),	// Back to main loop
 	
 
-// Label 6:  fade out into end
+// Label 6: fade out into end
 PROC_LABEL(6),
 	PROC_CALL_ARG (NewFadeOut, 0x10),
 	PROC_WHILE (FadeOutExists),
 	
-// Label 7:  end
+// Label 7: end
 PROC_LABEL(7),
 	PROC_CALL ((void*)PrepScreenItemUseScreen_OnEnd),
 	PROC_END,
@@ -158,7 +158,7 @@ void PrepScreenItemUseScreen_InitDisplay (struct Proc_PrepItemUse* proc) {
 	void Get6CDifferedLoop6C(void*, ProcPtr);
 	void SetColorEffectsFirstTarget(int bg0, int bg1, int bg2, int bg3, int obj);
 	static struct Proc* (*_StartHelpPromptSprite)(int x, int y, int palid, ProcPtr) = (const void*) 0x80894e1;
-	static void (*PrepScreenItemUseScreen_Init_HandsFunc) (int, int, int, int) = (const void*) 0x80AD51D;
+	static void (*PrepScreenItemUseScreen_Init_ShowHand) (int, int, int, int) = (const void*) 0x80AD51D;
 	void SMS_RegisterUsage(int);
 	
 	
@@ -171,9 +171,9 @@ void PrepScreenItemUseScreen_InitDisplay (struct Proc_PrepItemUse* proc) {
 	
 	// Some funcs that maybe work on later
 	void DrawPrepScreenItemUseStatLabels(struct Unit*);
-	void DrawPrepScreenItemUseStatBars(struct Unit*, int);
+	void DrawPrepScreenItemUseStatBars(struct Unit*, uint32_t mask);
 	void DrawPrepScreenItemUseStatValues(struct Unit*);
-	void DrawPrepScreenItemUseItemUseDesc(struct Unit*, uint32_t);
+	void DrawPrepScreenItemUseItemUseDesc(struct Unit*, int32_t);
 	static void (*DrawPrepScreenItemUseItems)(void*, struct TextHandle*, struct Unit*, int) = (const void*) 0x809B74C+1;
 	
 	
@@ -299,15 +299,15 @@ void PrepScreenItemUseScreen_InitDisplay (struct Proc_PrepItemUse* proc) {
 	NewGreenTextColorManager((ProcPtr)proc);
 	
 	_StartHelpPromptSprite(0xC0, 0x90, 9, proc);
-	DrawPrepScreenItemUseItemUseDesc(proc->unit, proc->item30);
+	DrawPrepScreenItemUseItemUseDesc(proc->unit, proc->item_slot);
 	DrawPrepScreenItemUseItems(
 		TILEMAP_LOCATED(gBG0TilemapBuffer, 2, 9),
 		&TH_PREP_ITEM[15],
 		proc->unit, 1
 	);
 	
-	tmp = (proc->item30 & 0b111) << 4;
-	PrepScreenItemUseScreen_Init_HandsFunc(tmp+0x10, tmp+0x48, 0xB, 0x800);
+	tmp = (proc->item_slot) << 4;
+	PrepScreenItemUseScreen_Init_ShowHand(tmp+0x10, tmp+0x48, 0xB, 0x800);
 	
 
 	SMS_RegisterUsage(GetUnitSMSId(proc->unit));
@@ -414,6 +414,224 @@ void DrawPrepScreenItemUseStatLabels(struct Unit* unit) {
 	DrawSpecialUiChar( TILEMAP_LOCATED(gBG2TilemapBuffer, 18, 1), 3, 0x25);
 	
 }
+
+
+
+
+
+void DrawPrepScreenItemUseStatValues(struct Unit* unit) {
+	
+	// HP
+	DrawDecNumber( 
+		TILEMAP_LOCATED(gBG2TilemapBuffer, 20, 3),
+		(GetUnitCurrentHp(unit) == UNIT_MHP_MAX(unit)) 
+			? TEXT_COLOR_GREEN
+			: TEXT_COLOR_BLUE,
+		GetUnitCurrentHp(unit)
+	);
+	
+	
+	// POW
+	DrawDecNumber(
+		TILEMAP_LOCATED(gBG2TilemapBuffer, 20, 5),
+		(GetUnitPower(unit) == UNIT_POW_MAX(unit)) 
+			? TEXT_COLOR_GREEN
+			: TEXT_COLOR_BLUE,
+		GetUnitPower(unit)
+	);
+	
+	
+	// SKL
+	DrawDecNumber(
+		TILEMAP_LOCATED(gBG2TilemapBuffer, 20, 7),
+		(GetUnitSkill(unit) == UNIT_SKL_MAX(unit)) 
+			? TEXT_COLOR_GREEN
+			: TEXT_COLOR_BLUE,
+		GetUnitSkill(unit)
+	);
+	
+	
+	// SPD
+	DrawDecNumber(
+		TILEMAP_LOCATED(gBG2TilemapBuffer, 20, 9),
+		(GetUnitSpeed(unit) == UNIT_SPD_MAX(unit)) 
+			? TEXT_COLOR_GREEN
+			: TEXT_COLOR_BLUE,
+		GetUnitSpeed(unit)
+	);
+	
+	
+	// LCK
+	DrawDecNumber(
+		TILEMAP_LOCATED(gBG2TilemapBuffer, 27, 3),
+		(GetUnitLuck(unit) == UNIT_LCK_MAX(unit)) 
+			? TEXT_COLOR_GREEN
+			: TEXT_COLOR_BLUE,
+		GetUnitLuck(unit)
+	);
+	
+	
+	// DEF
+	DrawDecNumber(
+		TILEMAP_LOCATED(gBG2TilemapBuffer, 27, 5),
+		(GetUnitDefense(unit) == UNIT_DEF_MAX(unit)) 
+			? TEXT_COLOR_GREEN
+			: TEXT_COLOR_BLUE,
+		GetUnitDefense(unit)
+	);
+	
+	
+	// RES
+	DrawDecNumber(
+		TILEMAP_LOCATED(gBG2TilemapBuffer, 27, 7),
+		(GetUnitResistance(unit) == UNIT_RES_MAX(unit)) 
+			? TEXT_COLOR_GREEN
+			: TEXT_COLOR_BLUE,
+		GetUnitResistance(unit)
+	);
+	
+	
+	// CON
+	DrawDecNumber(
+		TILEMAP_LOCATED(gBG2TilemapBuffer, 27, 9),
+		(UNIT_CON(unit) == UNIT_CON_MAX(unit)) 
+			? TEXT_COLOR_GREEN
+			: TEXT_COLOR_BLUE,
+		UNIT_CON(unit)
+	);
+	
+	
+	TileMap_FillRect(
+		TILEMAP_LOCATED(gBG2TilemapBuffer, 19, 1),
+		1, 1, 0
+	);
+	
+	
+	// LV
+	DrawDecNumber(
+		TILEMAP_LOCATED(gBG2TilemapBuffer, 20, 1),
+		TEXT_COLOR_BLUE,
+		unit->level
+	);
+	
+	
+	BG_EnableSyncByMask(0b100);
+}
+
+
+
+
+
+void DrawPrepScreenItemUseStatBars(struct Unit* unit, uint32_t mask) {
+	
+	static void (*UnpackUiBarPalette)(int) = (const void*) 0x804E138+1;
+	static void (*DrawPrepScreenItemUseStatBars_Core)(int, int, void*, int, int, int, int) = (const void*) 0x8086B2C+1;
+	
+	enum{
+		STAT_PACK_HP  = 0,
+		STAT_PACK_POW = 1,
+		STAT_PACK_SKL = 2,
+		STAT_PACK_SPD = 3,
+		
+		STAT_PACK_LCK = 4,
+		STAT_PACK_DEF = 5,
+		STAT_PACK_RES = 6,
+		STAT_PACK_CON = 7,
+	};
+	
+	
+	
+	int stat_pack[8];
+	
+	UnpackUiBarPalette(2);
+	
+	stat_pack[STAT_PACK_HP]  = GetUnitCurrentHp(unit) * 24 / UNIT_MHP_MAX(unit);
+	stat_pack[STAT_PACK_POW] = GetUnitPower(unit) * 24 / UNIT_POW_MAX(unit);
+	stat_pack[STAT_PACK_SKL] = GetUnitSkill(unit) * 24 / UNIT_SKL_MAX(unit);
+	stat_pack[STAT_PACK_SPD] = GetUnitSpeed(unit) * 24 / UNIT_SPD_MAX(unit);
+	
+	stat_pack[STAT_PACK_LCK] = GetUnitLuck(unit) * 24 / UNIT_LCK_MAX(unit);
+	stat_pack[STAT_PACK_DEF] = GetUnitDefense(unit) * 24 / UNIT_DEF_MAX(unit);
+	stat_pack[STAT_PACK_RES] = GetUnitResistance(unit) * 24 / UNIT_RES_MAX(unit);
+	stat_pack[STAT_PACK_CON] = UNIT_CON(unit) * 24 / UNIT_CON_MAX(unit);
+	
+	
+	// 王德发
+	// nmd总共就七个值,你不搞个switch, 搁这整活？？
+	for( int i = 0; i < 7; i++ )
+		DrawPrepScreenItemUseStatBars_Core(
+				0x380 + 8 * i, 4, 
+				
+				TILEMAP_LOCATED(gBG0TilemapBuffer, (i>>2)*7 +18, (i&0b11)*2 + 4),
+				0 == ((mask >> i) & 1)
+					? 0x2000
+					: 0x3000,
+					
+				0x18, stat_pack[i], 
+				
+				0 == ((mask >> i) & 1)
+					? 0
+					: stat_pack[i]
+			);
+
+	
+	
+	BG_EnableSyncByMask(0b1);
+}
+
+
+
+
+
+void DrawPrepScreenItemUseItemUseDesc(struct Unit* unit, int32_t slot) {
+	
+	static void (*DrawPrepItemScreenItemDesc_Core)(struct TextHandle* list[], char*, void* map, int lines) = (const void*) 0x8008A3C+1;
+	
+	uint16_t msg_desc, item;
+	int color;
+	
+	Text_Clear( &TH_PREP_ITEM[25] );
+	Text_Clear( &TH_PREP_ITEM[26] );
+	Text_Clear( &TH_PREP_ITEM[27] );
+	
+	if ( slot == -1 )
+		return;
+	
+	item = unit->items[slot];
+	msg_desc = GetItemUseDescId(item);
+	
+	
+	// ??? wtf
+	struct TextHandle* th_list[3] = {
+		&TH_PREP_ITEM[25],
+		&TH_PREP_ITEM[26],
+		&TH_PREP_ITEM[27],
+	};
+	
+	
+	
+	color = CanUnitUseItemPrepScreen(unit, item)
+		? TEXT_COLOR_NORMAL
+		: TEXT_COLOR_GRAY;
+		
+	
+	Text_SetColorId( th_list[0], color );
+	Text_SetColorId( th_list[1], color );
+	Text_SetColorId( th_list[2], color );
+	
+	
+	DrawPrepItemScreenItemDesc_Core(
+		th_list,
+		GetStringFromIndex(msg_desc),
+		TILEMAP_LOCATED(gBG0TilemapBuffer, 15, 12),
+		3
+	);
+	
+	BG_EnableSyncByMask(0b1);
+}
+
+
+
 
 
 

@@ -42,7 +42,7 @@ static int NormalJudge_MetisStome(struct Unit*, u16 item);
 // Normal Judgement
 typedef int (*JudgFunc_t)(struct Unit*, u16 item);
 
-const JudgFunc_t ItemUsabilityTable[0xCE] = {
+const JudgFunc_t ItemMenuUsabilityTable[0xCE] = {
 	
 	[ITEM_STAFF_HEAL] = NormalJudge_Heal,
 	[ITEM_STAFF_MEND] = NormalJudge_Heal,
@@ -118,7 +118,7 @@ s8 CanUnitUseItem(struct Unit* unit, int item){
 	if ((GetItemAttributes(item) & IA_STAFF) && !CanUnitUseStaff(unit, item))
 		return FALSE;
 	
-	it = ItemUsabilityTable[ITEM_ID(item)];
+	it = ItemMenuUsabilityTable[ITEM_ID(item)];
 	
 	if ( NULL == it	)
 		return 0;
@@ -217,7 +217,7 @@ static int NormalJudge_MetisStome(struct Unit* unit, u16 item){
 
 
 
-/* 
+
 s8 CanUnitUsePromotionItem(struct Unit* unit, int item)
 {
 	#define CHECK_LIST(it)                       \
@@ -242,7 +242,8 @@ s8 CanUnitUsePromotionItem(struct Unit* unit, int item)
 		case ITEM_SOLARBRACE:
 			classList = gUnknown_088ADFA6;
 			break;
-
+		default:
+			break;
 		} // switch (GetItemIndex(item))
 
 		if (classList)
@@ -298,7 +299,8 @@ s8 CanUnitUsePromotionItem(struct Unit* unit, int item)
 	case ITEM_OCEANSEAL:
 		classList = gUnknown_088ADF9E;
 		break;
-
+	default:
+			break;
 	} // switch (GetItemIndex(item))
 
 	CHECK_LIST(classList);
@@ -306,7 +308,7 @@ s8 CanUnitUsePromotionItem(struct Unit* unit, int item)
 	return FALSE;
 
 	#undef CHECK_LIST
-} */
+}
 
 
 s8 CanUnitUseStatGainItem(struct Unit* unit, int item)

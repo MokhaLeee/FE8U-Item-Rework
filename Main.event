@@ -40,7 +40,7 @@ PROTECT $28E60 $29066 // DoItemUse
 PROTECT $2FC48 $2FFB0 // ActionStaffDoorChestUseItem
 
 	
-#define InjectItemUsability(item_id, judge_routine) "PUSH; ORG ItemUsabilityTable + item_id*4; POIN judge_routine|1; POP"
+#define InjectItemMenuUsability(item_id, judge_routine) "PUSH; ORG ItemMenuUsabilityTable + item_id*4; POIN judge_routine|1; POP"
 #define InjectItemMenuEffect(item_id, effect_routine) "PUSH; ORG ItemMenuEffectTable + item_id*4; POIN effect_routine|1; POP"
 #define InjectItemActionEffect(item_id, action_routine) "PUSH; ORG ItemActionEffectTable + item_id*4; POIN judge_routine|1; POP"
 
