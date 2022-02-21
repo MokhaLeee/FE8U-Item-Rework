@@ -17,4 +17,4 @@ You can directly assemble Main.event through [Event Assembler](https://github.co
 ---
 Q: ERROR when assemble Buildfile through EA, which told me `Undefined identifier: _LP___gnu_thumb1_case_uqi`
 
-A: Change optimize-options of gcc from `Os` to `O1`, or more detailed, transfer `CFLAGS  := $(ARCH) $(INCFLAGS) -Wall -Os -mtune=arm7tdmi -ffreestanding -mlong-calls` in to `CFLAGS  := $(ARCH) $(INCFLAGS) -Wall -O1 -mtune=arm7tdmi -ffreestanding -mlong-calls` in Wizardry makefile.
+A: Change optimize-options of gcc from `Os` to `O1` or `O2`.
